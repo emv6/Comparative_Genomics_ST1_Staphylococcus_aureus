@@ -1,4 +1,4 @@
-# ComparativeGenomicsST1
+# Comparative Genomics ST1 Staphylococcus aureus
 
 ## Nullarbor 
 
