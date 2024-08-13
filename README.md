@@ -1,4 +1,7 @@
 # Comparative Genomics ST1 *Staphylococcus aureus*
+![bash](https://img.shields.io/badge/language-bash-red)
+![Python](https://img.shields.io/badge/language-Python-blue)
+![R](https://img.shields.io/badge/language-R-green)
 
 All bioinformatic analysis was conducted on the New Zealand eScience Infrastructure [NeSI](https://github.com/nesi). FastQC and Kraken2 was used for QC of the samples. A hybrid genome assembly was used to create the first ST1 bovine *S. aureus* reference genome 23EV612. Nullarbor was used for genome analysis, SpaTyper and AGRvate was used to determine *spa* and *agr* types. ST1 Phylogenetic tree generation using Gubbins and IQtree2. Python was used to calculate Inter and Intra-host variation between bovine and human *S. aureus* genomes and also calculate statistically significant genes based on presence and absence of detected antimicrobial resistance genes, Virulence and mobile genetic elements (MGE). Characterisation and determination of ΦSabovST1 is documented below. 
 
