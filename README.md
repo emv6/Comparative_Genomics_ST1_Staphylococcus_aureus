@@ -1,7 +1,7 @@
 # Comparative Genomics ST1 *Staphylococcus aureus*
-![bash](https://img.shields.io/badge/language-bash-red)
+![bash](https://img.shields.io/badge/language-bash-green)
 ![Python](https://img.shields.io/badge/language-Python-blue)
-![R](https://img.shields.io/badge/language-R-green)
+![R](https://img.shields.io/badge/language-R-red)
 
 All bioinformatic analysis was conducted on the New Zealand eScience Infrastructure [NeSI](https://github.com/nesi). FastQC and Kraken2 was used for QC of the samples. A hybrid genome assembly was used to create the first ST1 bovine *S. aureus* reference genome 23EV612. Nullarbor was used for genome analysis, SpaTyper and AGRvate was used to determine *spa* and *agr* types. ST1 Phylogenetic tree generation using Gubbins and IQtree2. Python was used to calculate Inter and Intra-host variation between bovine and human *S. aureus* genomes and also calculate statistically significant genes based on presence and absence of detected antimicrobial resistance genes, Virulence and mobile genetic elements (MGE). Characterisation and determination of ΦSabovST1 is documented below. 
 
@@ -142,7 +142,7 @@ module load RAxML-NG/1.1.0-gimkl-2022a
 run_gubbins.py -v --prefix ST1_NZ_Gubbins clean.full.aln  --first-tree-builder rapidnj --first-model JC -# 1000 
 ```
 ## IQ-TREE2
-[IQ-TREE2](http://www.iqtree.org/) was chosen to generate a time-scaled analysis ST1 NZ tree using the recombination sites and tree as output from Gubbins as input to IQ-TREE2 with the addition of a date file which is tab-delimited - isolate name in column 1 and date in column 2 enusring dates in YYYY-MM-DD format. 
+[IQ-TREE2](https://github.com/iqtree/iqtree2) was chosen to generate a time-scaled analysis ST1 NZ tree using the recombination sites and tree as output from Gubbins as input to IQ-TREE2 with the addition of a date file which is tab-delimited - isolate name in column 1 and date in column 2 enusring dates in YYYY-MM-DD format. 
 ```bash
 #!/bin/bash -e
 #SBATCH --cpus-per-task=8 --mem 50Gb --time 166:00:00 -J IQTREE_EV
