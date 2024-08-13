@@ -103,7 +103,7 @@ module load NanoStat/1.5.0-gimkl-2020a-Python-3.8.2
 NanoStat --fastq StaphA_23EV612_Guppy_Filtlong_Porechop.fastq.gz
 ```
 NanoStat Output 
-| General Summary  | Quality Statistics |
+|General Summary  |Quality Statistics |
 |------------------|--------------------|
 |Mean Read Length  | 6053.4             |
 |Mean Read Quality | 17.8               |
@@ -132,7 +132,7 @@ gunzip -c StaphA_23EV612_Guppy_Filtlong_Porechop.fastq.gz | chopper -q 18 | gzip
 #SBATCH --nodes 1 --cpus-per-task 1 --ntasks 10 --mem=50G -J Flye_EV --time=72:00:00 --hint=nomultithread
 
 module load Flye/2.9.1-gimkl-2022a-Python-3.10.5
-INPUT=StaphA_23EV612_Guppy_Filtlong_Porechop.fastq.gz
+INPUT=StaphA_23EV612_Guppy_Filtlong_Porechop_Chopper.fastq.gz
 OUTPUT=23EV612_Flye/
 flye --nano-hq $INPUT --genome-size 2.8m -o $OUTPUT -t 10 -i 3 --asm-coverage 50
 ```
@@ -143,11 +143,10 @@ flye --nano-hq $INPUT --genome-size 2.8m -o $OUTPUT -t 10 -i 3 --asm-coverage 50
 #SBATCH --nodes 1 --cpus-per-task 1 --job-name medaka_Flye --mem=20G --time=24:00:00 --output=%x_%j.out --error=%x_%j.err --hint=nomultithread
 module load medaka/1.6.0-Miniconda3-4.12.0
 
-READS=/nesi/project/nesi00187/LIC_raw_reads/nanopore/StaphAexperiment_K612_Sept2020/StaphA_K612_CombinedGuppyFiltlongPorechopNanostat_Chopper.fastq.gz
-CONTIG_FILE=/nesi/project/nesi00187/LIC_raw_reads/nanopore/StaphAexperiment_K612_Sept2020/Flye_March23_asm/assembly.fasta
+READS=StaphA_23EV612_Guppy_Filtlong_Porechop_Chopper.fastq.gz
+CONTIG_FILE=23EV612_Flye/assembly.fasta
 
-
-medaka_consensus -i $READS -d $CONTIG_FILE -o /nesi/project/nesi00187/LIC_raw_reads/StaphAexperiment_K612_Sept2020/medaka_racon/ -t 2 -m r941_min_sup_g507
+medaka_consensus -i $READS -d $CONTIG_FILE -o medaka_23EV612/ -t 2 -m r941_min_sup_g507
 ```
 
 #### Bwa mem and samtools sort 
