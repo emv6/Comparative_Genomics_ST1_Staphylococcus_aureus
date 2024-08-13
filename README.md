@@ -56,55 +56,14 @@ done
 ```
 ## Assembly of 23EV612 
 The Hybrid Genome Assembly of *S. aureus* isolate 23EV612 is detailed below. 
-
 #### Guppy
 [Guppy](https://community.nanoporetech.com/docs/prepare/library_prep_protocols/Guppy-protocol/v/gpb_2003_v1_revax_14dec2018/guppy-software-overview) was chosen as the basecaller specifying the super accurate model. 
-```bash 
-#!/bin/bash -e
-#SBATCH -J guppy_gpu --gpus-per-node A100:1 --mem 6G --cpus-per-task 4 --time 10:00:00 --output slurmout.%j.out
-
-module purge
-module load ont-guppy-gpu/6.4.6
-
-INPUT=Path/to/raw/reads/20201219_1143_MC-110462_0_FAN52032_782f79b0/
-FOLDER=Guppy_Super_Accurate_model_23EV612/
-
-guppy_basecaller -i $INPUT -s $FOLDER -c dna_r9.4.1_450bps_sup.cfg --device auto --recursive --detect_mid_strand_adapter --min_qscore 7 --barcode_kits SQK-NBD110-24
-```
-```cat Guppy_Super_Accurate_model_23EV612/*.fastq > 23EV612_Guppy.fastq ```
-
 #### Filtlong
 [Filtlong](https://github.com/rrwick/Filtlong) was used to remove reads shorter than 1kbp and exclude the worst 5% of the reads. 
-```bash
-module load Filtlong/0.2.0
-filtlong --min_length 1000 --keep_percent 95 23EV612_Guppy.fastq| gzip > 23EV612_Guppy_Filtlong.fastq.gz
-```
 #### Porechop
 [Porechop](https://github.com/rrwick/Porechop) was used to remove any adaptors 
-```bash
-#!/bin/bash -e
-#SBATCH -c 15 --mem=16Gb --time 00:120:00 -J Porechop_EV
-
-module purge
-module load Porechop/0.2.4-gimkl-2020a-Python-3.8.2
-
-for input in *_Guppy_Filtlong.fastq.gz
-do
-base=$(basename ${input} _Guppy_Filtlong.fastq.gz)
-echo "working with file $input"
-echo "basename is $base"
-
-OUTPUT=/pathtoprocessedreads/StaphA_${base}_Guppy_Filtlong_Porechop.fastq.gz
-porechop -i $input -o $OUTPUT --discard_middle
-
-done
-```
 #### NanoStat
-[NanoStat](https://github.com/wdecoster/nanostat) was used to perform quality checks to determine the mean read quality
-```
-module load NanoStat/1.5.0-gimkl-2020a-Python-3.8.2
-NanoStat --fastq StaphA_23EV612_Guppy_Filtlong_Porechop.fastq.gz
-```
+[NanoStat](https://github.com/wdecoster/nanostat) was used to perform quality checks to determine the mean read quality of 23EV612
 NanoStat Output 
 |General Summary  |Quality Statistics |
 |------------------|--------------------|
@@ -123,55 +82,19 @@ NanoStat Output
 
 #### Chopper
 [Chopper](https://github.com/wdecoster/chopper) was used to ensure only reads above the mean read quality are kept. 
-```
-module load chopper/0.2.0-GCC-11.3.0
-gunzip -c StaphA_23EV612_Guppy_Filtlong_Porechop.fastq.gz | chopper -q 18 | gzip > StaphA_23EV612_Guppy_Filtlong_Porechop_Chopper.fastq.gz
-#The q is the mean read quality as specified from NanoStat.
-```
 #### Flye 
 [Flye](https://github.com/mikolmogorov/Flye) was used as the *de novo* assembler to assemble the isolate 23EV612. 
-```bash
-#!/bin/bash -e
-#SBATCH --nodes 1 --cpus-per-task 1 --ntasks 10 --mem=50G -J Flye_EV --time=72:00:00 --hint=nomultithread
-
-module load Flye/2.9.1-gimkl-2022a-Python-3.10.5
-INPUT=StaphA_23EV612_Guppy_Filtlong_Porechop_Chopper.fastq.gz
-OUTPUT=23EV612_Flye/
-flye --nano-hq $INPUT --genome-size 2.8m -o $OUTPUT -t 10 -i 3 --asm-coverage 50
-```
 #### Medaka 
-[Medaka](https://github.com/nanoporetech/medaka) was used as the polishing tool for the 23EV612. 
-```bash
-#!/bin/bash -e
-#SBATCH --nodes 1 --cpus-per-task 1 --job-name medaka_Flye --mem=20G --time=24:00:00 --output=%x_%j.out --error=%x_%j.err --hint=nomultithread
-module load medaka/1.6.0-Miniconda3-4.12.0
-
-READS=StaphA_23EV612_Guppy_Filtlong_Porechop_Chopper.fastq.gz
-CONTIG_FILE=23EV612_Flye/assembly.fasta
-
-medaka_consensus -i $READS -d $CONTIG_FILE -o medaka_23EV612/ -t 2 -m r941_min_sup_g507
-```
-
-#### Bwa mem and samtools sort 
-
+[Medaka](https://github.com/nanoporetech/medaka) was used as the polishing tool for 23EV612. 
+#### BWA and SAMtools 
+[BWA](https://github.com/lh3/bwa) and [SAMtools](https://samtools.sourceforge.net/) were used to iteratively map the Illumina reads of 23EV612 to the nanopore assembly. 
 #### Pilon
-
-#### CheckM Quast 
-
-
-
-
-
-
-
-
-
-
-
+[Pilon](https://github.com/broadinstitute/pilon) is run to polish the final Hybrid Assembly 23EV612. Three rounds of Pilon are run. Therefore Pilon is run three times and the bwamem_pilon is run twice. The final fasta file called pilon_round3.fasta is the polished hybrid genome and is renamed accordingly. 
+#### CheckM and Quast 
+[CheckM](https://github.com/Ecogenomics/CheckM) and [Quast](https://github.com/ablab/quast) was run on the 23EV612 to check the assembly is complete 
 
 ## Nullarbor
 [Nullarbor](https://github.com/tseemann/nullarbor) is the genomic analysis pipeline chosen for bovine, human and ST1 *S. aureus* analysis. In the nullarbor.pl file --mincov was specified as 60 and --minid as 90. The script was run on NESI. 
-
 ```bash
 #!/bin/bash -e
 #SBATCH --cpus-per-task=20 --mem 160Gb --time 166:00:00 -J nullarbor_EV
@@ -201,26 +124,38 @@ tr '\n' ' ' < list_of_genomes.txt > spa_command.txt
 chmod +x spa_command.txt
 ./ spa_command.txt
 ```
-
 ## Defining *agr* types
 [AGRvate](https://github.com/VishnuRaghuram94/AgrVATE) was used to identify each genomes *agr* type. A conda environment was created then the contig fasta files was used as input for AGRvate. 
+## Gubbins
+[Gubbins](https://github.com/nickjcroucher/gubbins) was used to remove recombinant regions from the ST1 alignment file before constructing a time-scaled tree. 
+The alignment file from Nullarbor needed to be 'cleaned' using the snippy-clean_full_aln command installed with [Snippy](https://github.com/tseemann/snippy). Gubbins script was run as detailed below. 
+snippy-clean_full_aln core.full.aln > clean_full.aln
+```
+#!/bin/bash -e
+#SBATCH --cpus-per-task=8 --mem 40Gb --time 166:00:00 -J Gubbins_EV -e Gubbins_%J.err -o Gubbins_%J.out
 
-## Hybrid Genome
+mkdir -p $TMPDIR
+module purge
+module load Gubbins/3.2.2-gimkl-2022a-Python-3.10.5
+module load RAxML-NG/1.1.0-gimkl-2022a
 
-## Gubbins 
+run_gubbins.py -v --prefix ST1_NZ_Gubbins clean.full.aln  --first-tree-builder rapidnj --first-model JC -# 1000 
+```
+## IQ-TREE2
+[IQ-TREE2](http://www.iqtree.org/) was chosen to generate a time-scaled analysis ST1 NZ tree using the recombination sites and tree as output from Gubbins as input to IQ-TREE2 with the addition of a date file which is tab-delimited - isolate name in column 1 and date in column 2 enusring dates in YYYY-MM-DD format. 
+```bash
+#!/bin/bash -e
+#SBATCH --cpus-per-task=8 --mem 50Gb --time 166:00:00 -J IQTREE_EV
 
-
-## IQtree
-
-
-
+iqtree2 --date ST1_NZ_dates.txt -s CC1_TimeTree_Gubbins.filtered_polymorphic_sites.phylip --tree CC1_TimeTree_Gubbins.filtered_polymorphic_sites.phylip.treefile
+```
 
 ## Python script for SNP distance matrix 
 
 ## AMR_stats.py 
 
 ## Virulence Gene Analysis 
-Virulence Genes were split into their broad function: Adherence, Enterotoxin, Exoenzyme, Exotoxin, Haemolysin, Immune Modulation, Intracellular Adhesion, Type VII Secretion System and Others. The csv file was a binary matrix where Isolate in column 1, host in column 2 and the following columns with the genes detected where 1 is present and 0 being absent. Each individual function csv file was the input into the below python script to put *S. aureus* isolates of each host  into groups to identify the combination of genes that are present in majority of each bovine and human *S. aureus* host. 
+Virulence Genes were split into their broad function: Adherence, Enterotoxin, Exoenzyme, Exotoxin, Haemolysin, Immune Modulation, Intracellular Adhesion, Type VII Secretion System and Others. The csv file was a binary matrix where Isolate in column 1, host in column 2 and the following columns with the genes detected where 1 is present and 0 being absent. Each individual function csv file was the input into the below python script to put *S. aureus* isolates of each host into groups to identify the combination of genes that are present in majority of each bovine and human *S. aureus* host. Each functional group output was visualised as a presence/absence heatmap in R. 
 
 ```python
 file_path = "exoenzyme.csv" #Altered for each functional group
@@ -228,7 +163,7 @@ results = {}
 
 with open(file_path,'r') as data:
     for line in data.readlines():
-        if 'Source' in line:
+        if 'Host' in line:
             continue
         else:
             tmpdat = line.split(',')
