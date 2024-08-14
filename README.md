@@ -7,8 +7,7 @@ All bioinformatic analysis was conducted on the New Zealand eScience Infrastruct
 
 ## FastQC 
 [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) was used to check for QC of the samples for adaptor content and sequence quality
-```bash
-#!/bin/bash -e
+```#!/bin/bash -e
 #SBATCH --cpus-per-task=8 --mem 50Gb --time 1:00:00 -J FASTQC_EV
 
 module load FastQC/0.11.9
@@ -29,11 +28,11 @@ fi
 done
 echo "FastQC analysis completed for all samples"
 ```
+
 ## Kraken2 
 The default Kraken2 installed with [Nullarbor](https://github.com/tseemann/nullarbor) was used for species identification. If an isolate had a *k-mer* match ≤70% to *S. aureus* and/or contained more than 5% *k-mer* matches to another bacterial species these samples will be excluded. 
 
-```bash
-#!/bin/bash
+```#!/bin/bash
 
 CONF=0.5
 DATA=`find ${1} -name "*R1*.fq.gz"`
@@ -54,6 +53,7 @@ do
         sleep 0.5
 done
 ```
+
 ## Assembly of 23EV612 
 The Hybrid Genome Assembly of *S. aureus* isolate 23EV612 is detailed below. 
 #### Guppy
@@ -95,8 +95,7 @@ NanoStat Output
 
 ## Nullarbor
 [Nullarbor](https://github.com/tseemann/nullarbor) is the genomic analysis pipeline chosen for bovine, human and ST1 *S. aureus* analysis. In the nullarbor.pl file --mincov was specified as 60 and --minid as 90. The script was run on NESI. 
-```bash
-#!/bin/bash -e
+```#!/bin/bash -e
 #SBATCH --cpus-per-task=20 --mem 160Gb --time 166:00:00 -J nullarbor_EV
 #Alter Reference Genome for human, bovine or ST1 analysis - comment out the one not needed and alter Reference in the script.
 #Alter text file for purpose - bovine, human or ST1 analysis
@@ -116,8 +115,7 @@ nullarbor.pl --name StaphAureusIsolates --ref $Ref_Bovine \
 
 ## Defining *Spa* Types 
 *Spa* Types were determined using [SpaTyper](https://github.com/HCGB-IGTP/spaTyper). The list of genomes is made from the contigs.fa created by Nullarbor. 
-```bash 
-ls *.fa > list_of_genomes.txt ##Creating a list of genomes from all fastq files 
+```ls *.fa > list_of_genomes.txt ##Creating a list of genomes from all fastq files 
 sed -i '1 i\spaTyper  -f ' list_of_genomes.txt
 echo "--output spa.xls" &>> list_of_genomes.txt
 tr '\n' ' ' < list_of_genomes.txt > spa_command.txt
@@ -130,8 +128,7 @@ chmod +x spa_command.txt
 [Gubbins](https://github.com/nickjcroucher/gubbins) was used to remove recombinant regions from the ST1 alignment file before constructing a time-scaled tree. 
 The alignment file from Nullarbor needed to be 'cleaned' using the snippy-clean_full_aln command installed with [Snippy](https://github.com/tseemann/snippy). Gubbins script was run as detailed below. 
 ```snippy-clean_full_aln core.full.aln > clean_full.aln```
-```
-#!/bin/bash -e
+```#!/bin/bash -e
 #SBATCH --cpus-per-task=8 --mem 40Gb --time 166:00:00 -J Gubbins_EV -e Gubbins_%J.err -o Gubbins_%J.out
 
 mkdir -p $TMPDIR
@@ -143,8 +140,7 @@ run_gubbins.py -v --prefix ST1_NZ_Gubbins clean.full.aln  --first-tree-builder r
 ```
 ## IQ-TREE2
 [IQ-TREE2](https://github.com/iqtree/iqtree2) was chosen to generate a time-scaled analysis ST1 NZ tree using the recombination sites and tree as output from Gubbins as input to IQ-TREE2 with the addition of a date file which is tab-delimited - isolate name in column 1 and date in column 2 enusring dates in YYYY-MM-DD format. 
-```bash
-#!/bin/bash -e
+```#!/bin/bash -e
 #SBATCH --cpus-per-task=8 --mem 50Gb --time 166:00:00 -J IQTREE_EV
 module load nullarbor/2.0.201913
 
@@ -178,42 +174,33 @@ with open(file_path,'r') as data:
 print()
 for items in results:
     print("{},{},{}".format(items,len(results[items]),','.join(results[items])))
-    ##To run python scriptname > outputfile
 ```
 ## Detection of φSabovST1
-The phage sequence φSabovST1 was determined as a similar match to φSaov3 in our MGE database built using abricate. In the abricate output, genome coordinates for the match are displayed, these genome coordinates were used to extract the sequence of interest. However, 10,000bp either side of the detected region was chosen as a flanking region. The phage region was uploaded to [Phastest](https://phastest.ca/) and [PhageScope](https://phagescope.deepomics.org/) to determine the structure of the detected phage. Core-SNP phylogenetic tree between the reference φPV83, φSaov3, φSabovST1 and [Cluster B7 Phages](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-019-5647-8) was determined using [snippy](https://github.com/tseemann/snippy), [snp-dists](https://github.com/tseemann/snp-dists) and [IQtree2]((https://github.com/iqtree/iqtree2). [FastANI](https://github.com/ParBLiSS/FastANI) was used to determine the mean average nucleotide identity for all the phages used in the phylogeny. The ANI output was visualised in R.  
-```
-module load SAMtools/1.16.1-GCC-11.3.0
+The phage sequence φSabovST1 was determined as a similar match to φSaov3 in our MGE database built using abricate. In the abricate output, genome coordinates for the match are displayed, these genome coordinates were used to extract the sequence of interest. However, 10,000bp either side of the detected region was chosen as a flanking region. The phage region was uploaded to [Phastest](https://phastest.ca/) and [PhageScope](https://phagescope.deepomics.org/) to determine the structure of the detected phage. Core-SNP phylogenetic tree between the reference φPV83, φSaov3, φSabovST1 and [Cluster B7 Phages](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-019-5647-8) was determined using [snippy](https://github.com/tseemann/snippy), [snp-dists](https://github.com/tseemann/snp-dists) and [IQtree2](https://github.com/iqtree/iqtree2). [FastANI](https://github.com/ParBLiSS/FastANI) was used to determine the mean average nucleotide identity for all the phages used in the phylogeny. The ANI output was visualised in R.  
+```module load SAMtools/1.16.1-GCC-11.3.0
 samtools faidx 23EV612.fasta Contig1:2730000-2780000 > 23EV612_phagesequence.fasta
 ```
-```bash
-#!/bin/bash -e
+```#!/bin/bash -e
 #SBATCH --cpus-per-task=20 --mem 50Gb --time 1:00:00 -J SNIPPY_EV
-
 mkdir -p $TMPDIR
 module purge
-module load nullarbor/2.0.20191013_LIC
+module load nullarbor/2.0.20191013
 
 REF=phiPV83.fa
 INPUT=Phage.tab #Tab delimited file with phage in column 1 and path to sequence in column 2. 
 
 snippy-multi $INPUT --ref $REF --cpus 16 > snippy_phages.sh
-
 echo snippy_phages.sh has been made
-
 sh ./snippy_phages.sh
 ```
 ```snippy-clean_full_aln core.full.aln > clean_full.aln```
 ```snp-dists clean_full.aln > distances.tab```
-```bash
-#!/bin/bash -e
+```#!/bin/bash -e
 #SBATCH --cpus-per-task=8 --mem 50Gb --time 1:00:00 -J IQTREE_EV
 module load nullarbor/2.0.201913
-
 iqtree2 -s clean_full.aln 
 ```
-```bash
-#!/bin/bash
+```#!/bin/bash
 #SBATCH -J FastANI
 #SBATCH --time 00:30:00
 #SBATCH --mem 10GB
