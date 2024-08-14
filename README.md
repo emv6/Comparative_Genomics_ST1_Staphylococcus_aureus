@@ -146,6 +146,7 @@ run_gubbins.py -v --prefix ST1_NZ_Gubbins clean.full.aln  --first-tree-builder r
 ```bash
 #!/bin/bash -e
 #SBATCH --cpus-per-task=8 --mem 50Gb --time 166:00:00 -J IQTREE_EV
+module load nullarbor/2.0.201913
 
 iqtree2 --date ST1_NZ_dates.txt -s CC1_TimeTree_Gubbins.filtered_polymorphic_sites.phylip --tree CC1_TimeTree_Gubbins.filtered_polymorphic_sites.phylip.treefile
 ```
@@ -179,4 +180,68 @@ for items in results:
     print("{},{},{}".format(items,len(results[items]),','.join(results[items])))
     ##To run python scriptname > outputfile
 ```
+## Detection of φSabovST1
+The phage sequence φSabovST1 was determined as a similar match to φSaov3 in our MGE database built using abricate. In the abricate output, genome coordinates for the match are displayed, these genome coordinates were used to extract the sequence of interest. However, 10,000bp either side of the detected region was chosen as a flanking region. The phage region was uploaded to [Phastest](https://phastest.ca/) and [PhageScope](https://phagescope.deepomics.org/) to determine the structure of the detected phage. Core-SNP phylogenetic tree between the reference φPV83, φSaov3, φSabovST1 and [Cluster B7 Phages](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-019-5647-8) was determined using [snippy](https://github.com/tseemann/snippy), [snp-dists](https://github.com/tseemann/snp-dists) and [IQtree2]((https://github.com/iqtree/iqtree2). [FastANI](https://github.com/ParBLiSS/FastANI) was used to determine the mean average nucleotide identity for all the phages used in the phylogeny. The ANI output was visualised in R.  
+```
+module load SAMtools/1.16.1-GCC-11.3.0
+samtools faidx 23EV612.fasta Contig1:2730000-2780000 > 23EV612_phagesequence.fasta
+```
+```bash
+#!/bin/bash -e
+#SBATCH --cpus-per-task=20 --mem 50Gb --time 1:00:00 -J SNIPPY_EV
+
+mkdir -p $TMPDIR
+module purge
+module load nullarbor/2.0.20191013_LIC
+
+REF=phiPV83.fa
+INPUT=Phage.tab #Tab delimited file with phage in column 1 and path to sequence in column 2. 
+
+snippy-multi $INPUT --ref $REF --cpus 16 > snippy_phages.sh
+
+echo snippy_phages.sh has been made
+
+sh ./snippy_phages.sh
+```
+```snippy-clean_full_aln core.full.aln > clean_full.aln```
+```snp-dists clean_full.aln > distances.tab```
+```bash
+#!/bin/bash -e
+#SBATCH --cpus-per-task=8 --mem 50Gb --time 1:00:00 -J IQTREE_EV
+module load nullarbor/2.0.201913
+
+iqtree2 -s clean_full.aln 
+```
+```bash
+#!/bin/bash
+#SBATCH -J FastANI
+#SBATCH --time 00:30:00
+#SBATCH --mem 10GB
+#SBATCH --ntasks=1
+#SBATCH --array=0-13
+#SBATCH --cpus-per-task=15
+
+# Working directory
+cd FASTANI/
+
+# Load module
+module purge
+module load FastANI/1.33-GCC-11.3.0
+
+#Creating the array
+MY_FILE_LIST=Phage.txt
+LIST_OF_ALL_FILES=(`cat ${MY_FILE_LIST}`)
+ARRAY_ITEM=${LIST_OF_ALL_FILES[$SLURM_ARRAY_TASK_ID]}
+
+# Run FastANI
+echo ${ARRAY_ITEM}
+fastANI -r ${ARRAY_ITEM} --ql $MY_FILE_LIST -o ${SLURM_ARRAY_TASK_ID}.txt
+```
+
+
+
+
+
+
+
 
