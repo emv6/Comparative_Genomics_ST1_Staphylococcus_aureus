@@ -33,7 +33,6 @@ echo "FastQC analysis completed for all samples"
 The default Kraken2 installed with [Nullarbor](https://github.com/tseemann/nullarbor) was used for species identification. If an isolate had a *k-mer* match ≤70% to *S. aureus* and/or contained more than 5% *k-mer* matches to another bacterial species these samples will be excluded. 
 
 ```#!/bin/bash
-
 CONF=0.5
 DATA=`find ${1} -name "*R1*.fq.gz"`
 mkdir -p Kraken_Reports/
