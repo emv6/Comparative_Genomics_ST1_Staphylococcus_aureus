@@ -9,7 +9,7 @@ module load ont-guppy-gpu/6.4.6
 INPUT=Path/to/raw/reads/20191112_0850_MN30056_FAN36754_626723d4/
 FOLDER=Guppy_Super_Accurate_model_23EV612/
 
-guppy_basecaller -i $INPUT -s $FOLDER -c dna_r9.4.1_450bps_sup.cfg --device auto --recursive --detect_mid_strand_adapter 
+guppy_basecaller -i $INPUT -s $FOLDER -c dna_r9.4.1_450bps_sup.cfg --device auto --recursive --detect_mid_strand_adapter --min_qscore 7 
 ```
 ```
 cat $FOLDER/*.fastq > 23EV612.fastq 
