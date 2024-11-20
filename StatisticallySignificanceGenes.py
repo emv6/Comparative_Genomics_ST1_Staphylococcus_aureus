@@ -3,7 +3,7 @@
 def print_header ():
     header = """
 ======================================
-Script Name is Statistical_Significance_GenesMGE.py 
+Script Name is Statistical_Significance_Genes.py 
 Description:
     This script performs statistical analysis on Gene Presence and Absence data 
     including Chi-Square, Fisher's Exact Test, Odds Ratio and 95% Confidence Interval for each gene. 
@@ -120,4 +120,4 @@ def analyze_genes(df):
 results_df = analyze_genes(df)
 print("Results DataFrame:")
 print(results_df)
-results_df.to_csv('AMR_Results.csv', index = False)
+results_df.to_csv('Results.csv', index = False)
