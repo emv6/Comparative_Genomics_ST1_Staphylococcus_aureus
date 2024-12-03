@@ -98,17 +98,17 @@ NanoStat Output
 #SBATCH --cpus-per-task=20 --mem 160Gb --time 166:00:00 -J nullarbor_EV
 #Alter Reference Genome for human, bovine or ST1 analysis - comment out the one not needed and alter Reference in the script.
 #Alter text file for purpose - bovine, human or ST1 analysis
-Ref_Bovine = SaureusRF122.fa
+##Ref_Bovine = SaureusRF122.fa
 #Ref_Human = SaureusMSSA476.fa
-#Ref_ST1 = 23EV612.fa
+Ref_ST1 = 23EV612.fa
 
 mkdir -p $TMPDIR
 module purge
 module load nullarbor/2.0.20191013
 
-nullarbor.pl --name StaphAureusIsolates --ref $Ref_Bovine \
---input BovineIsolates.txt \
---outdir BovineAnalysis --force \
+nullarbor.pl --name StaphAureusIsolates --ref $Ref_ST1 \
+--input ST1_Isolates.txt \
+--outdir ST1_Analysis --force \
 --cpus $SLURM_CPUS_PER_TASK --run --mlst saureus --trim --taxoner-opt confidence 0.5 --treebuilder iqtree --treebuilder-opt "-wbtl -st DNA -b 1000 --alrt 1000" --annotator-opt "--fullanno --compliant"
 ```
 
