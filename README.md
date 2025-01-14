@@ -197,7 +197,7 @@ sh ./snippy_phages.sh
 ```#!/bin/bash -e
 #SBATCH --cpus-per-task=8 --mem 50Gb --time 1:00:00 -J IQTREE_EV
 module load nullarbor/2.0.201913
-iqtree2 -s clean_full.aln 
+iqtree2 -s clean_full.aln -B 1000 
 ```
 ```#!/bin/bash
 #SBATCH -J FastANI
