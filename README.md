@@ -181,9 +181,6 @@ samtools faidx 23EV612.fasta Contig1:2730000-2780000 > 23EV612_phagesequence.fas
 ```
 ```#!/bin/bash -e
 #SBATCH --cpus-per-task=20 --mem 50Gb --time 1:00:00 -J SNIPPY_EV
-mkdir -p $TMPDIR
-module purge
-module load nullarbor/2.0.20191013
 
 REF=phiPV83.fa
 INPUT=Phage.tab #Tab delimited file with phage in column 1 and path to sequence in column 2. 
