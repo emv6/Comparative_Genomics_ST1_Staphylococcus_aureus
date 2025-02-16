@@ -93,7 +93,7 @@ NanoStat Output
 [CheckM](https://github.com/Ecogenomics/CheckM) and [Quast](https://github.com/ablab/quast) was run on the 23EV612 to check the assembly is complete 
 
 ## Nullarbor
-[Nullarbor](https://github.com/tseemann/nullarbor) is the genomic analysis pipeline chosen for bovine, human and ST1 *S. aureus* analysis. In the nullarbor.pl file --mincov was specified as 50 and --minid as 90. The script was run on NESI. 
+[Nullarbor](https://github.com/tseemann/nullarbor) is the genomic analysis pipeline chosen for bovine, human and ST1 *S. aureus* analysis. In the nullarbor.pl file --mincov was specified as 55 and --minid as 90. The script was run on NESI. 
 ```#!/bin/bash -e
 #SBATCH --cpus-per-task=20 --mem 160Gb --time 166:00:00 -J nullarbor_EV
 #Alter Reference Genome for human, bovine or ST1 analysis - comment out the one not needed and alter Reference in the script.
