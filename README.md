@@ -146,10 +146,10 @@ module load nullarbor/2.0.201913
 iqtree2 --date ST1_NZ_dates.txt -s CC1_TimeTree_Gubbins.filtered_polymorphic_sites.phylip --tree CC1_TimeTree_Gubbins.filtered_polymorphic_sites.phylip.treefile
 ```
 ## Calculating Inter and Intra-host SNP variation using the SNP distance matrix 
-The SNP distance matrix as output from Nullarbor was used along with a CSV file which contained isolates in column 1 and column 2 was the respective host. Python code was used to compute the SNP distances between human and bovine hosts. Script called InterIntraHost.py
+The SNP distance matrix as output from Nullarbor was used along with a CSV file which contained isolates in column 1 and column 2 was the respective host. Python code was used to compute the SNP distances between human and bovine hosts. Script called [InterIntraHost.py](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/InterIntraHost.py)
 
 ## Calculating Statistical Significance Antimicrobial Resistance and Virulence genes and also Mobile Genetic Elements 
-Python script was used to calculate if genes were statistically significant (StatisticallySignficanceGenes.py) using Chi-Square/Fisher's Exact based on presence/absence data of each detected gene in human and bovine hosts. 
+Python script was used to calculate if genes were statistically significant [StatisticallySignficanceGenes.py](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/StatisticallySignificanceGenes.py) using Chi-Square/Fisher's Exact based on presence/absence data of each detected gene in human and bovine hosts. 
 
 ## Virulence Gene Analysis 
 Virulence Genes were split into their broad function: Adherence, Enterotoxin, Exoenzyme, Exotoxin, Haemolysin, Immune Modulation, Intracellular Adhesion, Type VII Secretion System and Others. The csv file was a binary matrix where Isolate in column 1, host in column 2 and the following columns with the genes detected where 1 is present and 0 being absent. Each individual function csv file was the input into the below python script to put *S. aureus* isolates of each host into groups to identify the combination of genes that are present in majority of each bovine and human *S. aureus* host. Each functional group output was visualised as a presence/absence heatmap in R. 
