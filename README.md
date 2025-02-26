@@ -152,28 +152,8 @@ The SNP distance matrix as output from Nullarbor was used along with a CSV file 
 Python script was used to calculate if genes were statistically significant [StatisticallySignficanceGenes.py](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/StatisticallySignificanceGenes.py) using Chi-Square/Fisher's Exact based on presence/absence data of each detected gene in human and bovine hosts. 
 
 ## Virulence Gene Analysis 
-Virulence Genes were split into their broad function: Adherence, Enterotoxin, Exoenzyme, Exotoxin, Haemolysin, Immune Modulation, Intracellular Adhesion, Type VII Secretion System and Others. The csv file was a binary matrix where Isolate in column 1, host in column 2 and the following columns with the genes detected where 1 is present and 0 being absent. Each individual function csv file was the input into the below python script to put *S. aureus* isolates of each host into groups to identify the combination of genes that are present in majority of each bovine and human *S. aureus* host. Each functional group output was visualised as a presence/absence heatmap in R. 
+Virulence Genes were split into their broad function: Adherence, Enterotoxin, Exoenzyme, Exotoxin, Haemolysin, Immune Modulation, Intracellular Adhesion, Type VII Secretion System and Others. The csv file was a binary matrix where Isolate in column 1, host in column 2 and the following columns with the genes detected where 1 is present and 0 being absent. Each individual function csv file was the input into a [python](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/virulencegroup.py) script to put *S. aureus* isolates of each host into groups to identify the combination of genes that are present in majority of each bovine and human *S. aureus* host. Each functional group output was visualised as a presence/absence heatmap in R. 
 
-```python
-file_path = "exoenzyme.csv" #Altered for each functional group
-results = {}
-
-with open(file_path,'r') as data:
-    for line in data.readlines():
-        if 'Host' in line:
-            continue
-        else:
-            tmpdat = line.split(',')
-            key = line[line.index(',') + 1: len(line)].rstrip()
-            if key in results:
-                results[key].append(tmpdat[0])
-            else:
-                results[key] = [tmpdat[0]]
-
-print()
-for items in results:
-    print("{},{},{}".format(items,len(results[items]),','.join(results[items])))
-```
 ## Detection of φSabovST1
 The phage sequence φSabovST1 was determined as a similar match to φSaov3 in our MGE database built using abricate. In the abricate output, genome coordinates for the match are displayed, these genome coordinates were used to extract the sequence of interest. However, 10,000bp either side of the detected region was chosen as a flanking region. The phage region was uploaded to [Phastest](https://phastest.ca/) and [PhageScope](https://phagescope.deepomics.org/) to determine the structure of the detected phage. Core-SNP phylogenetic tree between the reference φPV83, φSaov3, φSabovST1 and [Cluster B7 Phages](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-019-5647-8) was determined using [snippy](https://github.com/tseemann/snippy), [snp-dists](https://github.com/tseemann/snp-dists) and [IQ-TREE2](https://github.com/iqtree/iqtree2). [FastANI](https://github.com/ParBLiSS/FastANI) was used to determine the mean average nucleotide identity for all the phages used in the phylogeny. The ANI output was visualised in R.  
 ```module load SAMtools/1.16.1-GCC-11.3.0
