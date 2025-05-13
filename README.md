@@ -137,7 +137,7 @@ module load RAxML-NG/1.1.0-gimkl-2022a
 
 run_gubbins.py -v --prefix ST1_NZ_Gubbins clean.full.aln  --first-tree-builder rapidnj --first-model JC -# 1000 
 ```
-```
+
 ## Calculating Inter and Intra-host SNP variation using the SNP distance matrix 
 The SNP distance matrix as output from Nullarbor was used along with a CSV file which contained isolates in column 1 and column 2 was the respective host. Python code was used to compute the SNP distances between human and bovine hosts. Script called [InterIntraHost.py](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/InterIntraHost.py)
 
