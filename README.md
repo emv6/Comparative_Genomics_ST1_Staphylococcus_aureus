@@ -54,7 +54,7 @@ done
 ```
 
 ## Assembly of 23EV612 
-The Hybrid Genome Assembly of *S. aureus* isolate 23EV612 is detailed below. 
+The Hybrid Genome Assembly of *S. aureus* isolate 23EV612 is detailed below. The assembly script is uploaded as Hybrid_Genome_Assembly.sh. 
 #### Guppy
 [Guppy](https://community.nanoporetech.com/docs/prepare/library_prep_protocols/Guppy-protocol/v/gpb_2003_v1_revax_14dec2018/guppy-software-overview) was chosen as the basecaller specifying the super accurate model. 
 #### Filtlong
@@ -137,25 +137,18 @@ module load RAxML-NG/1.1.0-gimkl-2022a
 
 run_gubbins.py -v --prefix ST1_NZ_Gubbins clean.full.aln  --first-tree-builder rapidnj --first-model JC -# 1000 
 ```
-## IQ-TREE2
-[IQ-TREE2](https://github.com/iqtree/iqtree2) was chosen to generate a time-scaled analysis ST1 NZ tree using the recombination sites and tree as output from Gubbins as input to IQ-TREE2 with the addition of a date file which is tab-delimited - isolate name in column 1 and date in column 2 enusring dates in YYYY-MM-DD format. 
-```#!/bin/bash -e
-#SBATCH --cpus-per-task=8 --mem 50Gb --time 166:00:00 -J IQTREE_EV
-module load nullarbor/2.0.201913
-
-iqtree2 --date ST1_NZ_dates.txt -s CC1_TimeTree_Gubbins.filtered_polymorphic_sites.phylip --tree CC1_TimeTree_Gubbins.filtered_polymorphic_sites.phylip.treefile
 ```
 ## Calculating Inter and Intra-host SNP variation using the SNP distance matrix 
 The SNP distance matrix as output from Nullarbor was used along with a CSV file which contained isolates in column 1 and column 2 was the respective host. Python code was used to compute the SNP distances between human and bovine hosts. Script called [InterIntraHost.py](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/InterIntraHost.py)
 
 ## Calculating Statistical Significance Antimicrobial Resistance and Virulence genes and also Mobile Genetic Elements 
-Python script was used to calculate if genes were statistically significant [StatisticallySignficanceGenes.py](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/StatisticallySignificanceGenes.py) using Chi-Square/Fisher's Exact based on presence/absence data of each detected gene in human and bovine hosts. 
+Python script was used to calculate if genes were statistically significant [StatisticallySignficanceGenes.py](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/StatisticallySignificanceGenes.py) using Chi-Square/Fisher's Exact based on presence/absence data of each detected gene in human and bovine hosts. A *p*-value, odds ratio and 95% confidence interval were computed for each detected gene/MGE. 
 
 ## Virulence Gene Analysis 
-Virulence Genes were split into their broad function: Adherence, Enterotoxin, Exoenzyme, Exotoxin, Haemolysin, Immune Modulation, Intracellular Adhesion, Type VII Secretion System and Others. The csv file was a binary matrix where Isolate in column 1, host in column 2 and the following columns with the genes detected where 1 is present and 0 being absent. Each individual function csv file was the input into a [python](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/virulencegroup.py) script to put *S. aureus* isolates of each host into groups to identify the combination of genes that are present in majority of each bovine and human *S. aureus* host. Each functional group output was visualised as a presence/absence heatmap in R. 
+Virulence Genes were split into their broad function: Adherence, Enterotoxin, Exoenzyme, Exotoxin, Haemolysin, Immune Modulation, Intracellular Adhesion, Type VII Secretion System and Others. The csv file was a binary matrix where Isolate in column 1, host in column 2 and the following columns with the genes detected where 1 is present and 0 being absent. Each individual function csv file was the input into a [python](https://github.com/emv6/Comparative_Genomics_ST1_Staphylococcus_aureus/blob/main/virulencegroup.py) script to put *S. aureus* isolates of each host into groups to identify the combination of genes that are present in majority of each bovine and human *S. aureus* host. Each functional group output was visualised as a presence/absence heatmap in R. The R script is detailed in Virulence_Heatmaps.r using pheatmap. 
 
 ## Detection of φSabovST1
-The phage sequence φSabovST1 was determined as a similar match to φSaov3 in our MGE database built using abricate. In the abricate output, genome coordinates for the match are displayed, these genome coordinates were used to extract the sequence of interest. However, 10,000bp either side of the detected region was chosen as a flanking region. The phage region was uploaded to [Phastest](https://phastest.ca/) and [PhageScope](https://phagescope.deepomics.org/) to determine the structure of the detected phage. Core-SNP phylogenetic tree between the reference φPV83, φSaov3, φSabovST1 and [Cluster B7 Phages](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-019-5647-8) was determined using [snippy](https://github.com/tseemann/snippy), [snp-dists](https://github.com/tseemann/snp-dists) and [IQ-TREE2](https://github.com/iqtree/iqtree2). [FastANI](https://github.com/ParBLiSS/FastANI) was used to determine the mean average nucleotide identity for all the phages used in the phylogeny. The ANI output was visualised in R.  
+The phage sequence φSabovST1 was determined as a similar match to φSaov3 in our MGE database built using abricate. In the abricate output, genome coordinates for the match are displayed, these genome coordinates were used to extract the sequence of interest. However, 10,000bp either side of the detected region was chosen as a flanking region. The phage region was uploaded to [Phastest](https://phastest.ca/) and [PhageScope](https://phagescope.deepomics.org/) to determine the structure of the detected phage. Core-SNP phylogenetic tree between the reference φPV83, φSaov3, φSabovST1 and [Cluster B7 Phages](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-019-5647-8) was determined using [snippy](https://github.com/tseemann/snippy), [snp-dists](https://github.com/tseemann/snp-dists) and [IQ-TREE2](https://github.com/iqtree/iqtree2). [FastANI](https://github.com/ParBLiSS/FastANI) was used to determine the mean average nucleotide identity for all the phages used in the phylogeny. The ANI output was visualised in R using the ANI_heatmap.r script.  
 ```module load SAMtools/1.16.1-GCC-11.3.0
 samtools faidx 23EV612.fasta Contig1:2730000-2780000 > 23EV612_phagesequence.fasta
 ```
