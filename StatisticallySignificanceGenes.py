@@ -22,6 +22,7 @@ print_header()
 import pandas as pd 
 import numpy as np 
 import scipy.stats as stats
+from statsmodels.stats.multitest import multipletests
 
 # Calculate Odds Ratio and 95% CI
 def odds_ratio_and_ci(a, b, c, d, confidence_level=0.95):
@@ -55,69 +56,84 @@ print(df)
 
 def analyze_genes(df):
     results = []
+    raw_p_values = []
 
-#Iterating over the dataframe 
     for index, row in df.iterrows():
-        print(f"Processing Gene: {row['Gene']}")
+        gene = row['Gene']
+        bovine_presence = row['Bovine_Presence']
+        human_presence = row['Human_Presence']
+        
+        total_presence = bovine_presence + human_presence
 
-        #Contingency Table 
+        # Skip if total presence < 5
+        if total_presence < 5:
+            print(f"Skipping {gene} due to low total presence ({total_presence})")
+            continue
+
         table = np.array([
-            [row['Bovine_Presence'], row['Bovine_Absence']],
-            [row['Human_Presence'], row['Human_Absence']]
+            [bovine_presence, row['Bovine_Absence']],
+            [human_presence, row['Human_Absence']]
         ])
 
         try:
-            #Chi-Square 
             chi2_stat, p_value_chi2, _, expected = stats.chi2_contingency(table, correction=False)
-            #If any frequency is less than 5 
             if np.any(expected < 5):
-                test_name = 'Fisher\'s exact'
-                oddsratio_fisher, p_value_fisher = stats.fisher_exact(table, alternative ='two-sided')
+                test_name = 'Fisher\'s Exact'
+                oddsratio_fisher, p_value_fisher = stats.fisher_exact(table)
                 p_value = p_value_fisher
                 chi2_stat = np.nan
             else:
                 test_name = 'Chi-Square'
                 p_value = p_value_chi2
-                p_value_fisher = np.nan 
-
-        #If there is any error result to Fisher's Exact Test 
-        except Exception as e: 
-            print(f"Exception encountered: {e}")
+                p_value_fisher = np.nan
+        except Exception as e:
+            print(f"Exception for {gene}: {e}")
             test_name = 'Fisher\'s Exact'
-            oddsratio_fisher, p_value_fisher = stats.fisher_exact(table, alternative ='two-sided')
-            p_value = p_value_fisher 
-            chi2_stat = np.nan 
-            p_value_chi2 = np.nan 
+            oddsratio_fisher, p_value_fisher = stats.fisher_exact(table)
+            p_value = p_value_fisher
+            chi2_stat = np.nan
+            p_value_chi2 = np.nan
 
-        #Calculate Odds Ratio and 95% CI 
+        # Odds ratio and CI
         a, b, c, d = table.flatten()
         odds_ratio, (ci_lower, ci_upper) = odds_ratio_and_ci(a, b, c, d)
 
-         #If genes are significant say True otherwise False 
-        is_significant = p_value < 0.05
+        raw_p_values.append(p_value)
 
-    #Append the results for each gene
         results.append({
-            'Gene': row['Gene'], 
-            'Test Used': test_name, 
-            'P-Value': p_value, 
+            'Gene': gene,
+            'Test Used': test_name,
+            'P-Value': p_value,
             'Chi-Square Statistic': chi2_stat,
-            'Chi-Square P value': p_value_chi2,
+            'Chi-Square P-Value': p_value_chi2,
             'Fisher\'s Exact P-Value': p_value_fisher,
-            'Odds Ratio': odds_ratio, 
-            '95% CI Lower': ci_lower, 
-            '95% CI Upper': ci_upper,
-            'Significance': is_significant,
-            'Expected': expected
+            'Odds Ratio': odds_ratio,
+            '95% CI Lower': ci_lower,
+            '95% CI Upper': ci_upper
         })
 
-#Convert results to DataFrame 
+    # Convert to DataFrame
     results_df = pd.DataFrame(results)
+
+    # Apply FDR correction
+    if not results_df.empty:
+        fdr_results = multipletests(raw_p_values, alpha=0.05, method='fdr_bh')
+        results_df['FDR-adjusted P-Value'] = fdr_results[1]
+        results_df['FDR Significant (<0.05)'] = fdr_results[0]
+    else:
+        results_df['FDR-adjusted P-Value'] = []
+        results_df['FDR Significant (<0.05)'] = []
 
     return results_df
 
-#Analyse data and print results 
+# Load Excel
+file_path = 'Contingency_Table.xlsx'
+sheet_name = 'Sheet1'
+df = pd.read_excel(file_path, sheet_name=sheet_name)
+
+# Analyze
 results_df = analyze_genes(df)
 print("Results DataFrame:")
 print(results_df)
+
 results_df.to_csv('AMR_Results.csv', index = False)
